@@ -1,18 +1,16 @@
 package com.example.CurrencyProject.service;
 
 import com.example.CurrencyProject.mapper.GoldMapper;
-import com.example.CurrencyProject.model.Material;
+import com.example.CurrencyProject.model.material.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -86,4 +84,24 @@ class GoldServiceTest {
         assertThrows(IllegalArgumentException.class,() -> goldService.getGoldForDays(400));
     }
 
+    @Test
+    void getGoldForYears() {
+
+        // given
+        List<Material> goldValueForYear = materialFactory.createMaterialBetweenTenDays("gold");
+
+        ZoneId polishZone = ZoneId.of("Europe/Warsaw");
+        LocalDate endDay = LocalDate.now(polishZone);
+        LocalDate startDay = endDay.minusDays(365);
+
+        when(goldMapper.getGoldBetween(startDay,endDay)).thenReturn(
+                Mono.just(goldValueForYear));
+        // when
+
+        List<Material> resultMaterials = goldService.getGoldForYears(1);
+
+        // then
+        assertThat(resultMaterials.size(),equalTo(goldValueForYear.size()));
+
+    }
 }

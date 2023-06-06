@@ -1,9 +1,7 @@
 package com.example.CurrencyProject.service;
 
-import com.example.CurrencyProject.dto.GoldDto;
 import com.example.CurrencyProject.mapper.GoldMapper;
-import com.example.CurrencyProject.model.AB.Currency;
-import com.example.CurrencyProject.model.Material;
+import com.example.CurrencyProject.model.material.Material;
 import com.example.CurrencyProject.utils.MathMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -136,7 +134,7 @@ public class GoldService {
         return Material.builder().data(actualDay.getData()).name(actualDay.getName())
                 .unit(actualDay.getUnit())
                 .price(actualDay.getPrice()).change(mathMapper.roundToSixDecimalPlace(change))
-                .percentChange(mathMapper.roundToTwoDecimalPlace(percent)).build();
+                .percentChange(mathMapper.roundToTwoDecimalPlace(percent)).currency("PLN").build();
     }
 
     private double calculateChange(Material materialBefore , Material materialActual) {

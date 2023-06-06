@@ -1,7 +1,7 @@
 package com.example.CurrencyProject.service;
 
-import com.example.CurrencyProject.model.AB.Currency;
-import com.example.CurrencyProject.model.Group;
+import com.example.CurrencyProject.model.currency.Currency;
+import com.example.CurrencyProject.model.currency.Group;
 import com.example.CurrencyProject.utils.CountryCurrencyMapper;
 
 import java.time.LocalDate;

@@ -2,13 +2,13 @@ package com.example.CurrencyProject.externalApi.NBP;
 
 
 import com.example.CurrencyProject.dto.GoldDto;
-import com.example.CurrencyProject.model.Group;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -28,7 +28,7 @@ public class GoldApi {
         this.webClient = webClientBuilder.baseUrl(API_URL).build();
     }
 
-
+    @Cacheable(cacheNames="ActualGoldValue")
     public List<GoldDto> getActualGoldValue() {
 
         Mono<List<GoldDto>> goldValueMono = webClient.get()
@@ -43,6 +43,7 @@ public class GoldApi {
     }
 
 
+    @Cacheable(cacheNames="GoldMostActualDays")
     public Mono<List<GoldDto>> getGoldMostActualDays(int days ) {
 
         Mono<List<GoldDto>> goldDaysMono = webClient.get()
@@ -55,10 +56,11 @@ public class GoldApi {
                 .bodyToMono(String.class)
                 .map(this::createListGoldValueDto);
 
-        return goldDaysMono;
+        return goldDaysMono.cache();
     }
 
 
+    @Cacheable(cacheNames="GoldBetween")
     public Mono<List<GoldDto>> getGoldBetween(LocalDate startDate, LocalDate endDate) {
 
         return webClient.get().uri(uriBuilder -> uriBuilder
@@ -67,7 +69,7 @@ public class GoldApi {
                 .queryParam("format","json")
                 .build()).retrieve()
                 .bodyToMono(String.class)
-                .map(this::createListGoldValueDto);
+                .map(this::createListGoldValueDto).cache();
 
     }
 

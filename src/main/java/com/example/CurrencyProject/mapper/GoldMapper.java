@@ -2,9 +2,8 @@ package com.example.CurrencyProject.mapper;
 
 import com.example.CurrencyProject.dto.GoldDto;
 import com.example.CurrencyProject.externalApi.NBP.GoldApi;
-import com.example.CurrencyProject.model.Material;
+import com.example.CurrencyProject.model.material.Material;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -39,7 +38,7 @@ public class GoldMapper {
     private List<Material> materialArrayBuilder(List<GoldDto> goldDtoList)  {
 
         return goldDtoList.stream().map( goldDto -> {
-           return Material.builder().name("gold").data(goldDto.getData())
+           return Material.builder().name("gold").data(goldDto.getData().atStartOfDay())
                    .unit("gram").price(goldDto.getCena()).build() ;
         }).toList();
 
@@ -48,7 +47,7 @@ public class GoldMapper {
     private Material materialBuilder(List<GoldDto> goldDtoList) {
 
         return goldDtoList.stream().map( goldDto -> {
-            return Material.builder().data(goldDto.getData()).name("gold")
+            return Material.builder().data(goldDto.getData().atStartOfDay()).name("gold")
                     .unit("gram").price(goldDto.getCena()).build();
         }).toList().get(0);
 

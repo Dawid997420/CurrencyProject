@@ -1,11 +1,18 @@
 package com.example.CurrencyProject.service;
 
+import com.example.CurrencyProject.dto.material.MaterialSymbol;
 import com.example.CurrencyProject.exception.MaterialNotFoundException;
-import com.example.CurrencyProject.model.Material;
+import com.example.CurrencyProject.mapper.MaterialMapper;
+import com.example.CurrencyProject.model.material.Material;
+import com.example.CurrencyProject.scraper.material.MaterialScrapper;
+import com.example.CurrencyProject.scraper.metal.enums.Metal;
+import com.example.CurrencyProject.scraper.metal.MetalScrapper;
+import com.example.CurrencyProject.strategy.material.MaterialStan;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,56 +20,54 @@ import java.util.List;
 public class MaterialService {
 
 
-    private final GoldService goldService;
+    private final MaterialScrapper materialScrapper;
+
+    private final MaterialMapper materialMapper;
 
 
-    public MaterialService(GoldService goldService) {
-        this.goldService = goldService;
+
+    public MaterialService(MaterialScrapper materialScrapper, MaterialMapper materialMapper) {
+
+        this.materialScrapper = materialScrapper;
+        this.materialMapper = materialMapper;
     }
 
-    public List<Material> getAllMaterials() {
+    public List<Material> getAllMaterials() throws Exception {
 
-       Mono<Material> goldValueMono = goldService.getActualGoldValue();
-       Mono<Material> goldValueMono2 = goldService.getActualGoldValue();
-
-
-
-       return Mono.zip(goldValueMono,goldValueMono2)
-               .map( list -> {
-                   List<Material> allMaterials = new ArrayList<>();
-                   allMaterials.add(list.getT1());
-
-                   return allMaterials;
-               })
-               .block();
-
+        return materialScrapper.getAllMaterials();
     }
 
 
-    public List<Material> getMaterialForDays( String name , int days) {
+    public List<Material> getMaterialForDays(MaterialSymbol symbol, long days) {
 
-        if ( name.equals("gold")) {
+        LocalDateTime today = todayDate();
 
-            return goldService.getGoldForDays(days).block();
-        } else {
+        LocalDateTime dateBefore = today.minusDays(days);
 
-            throw new MaterialNotFoundException("Material with this name couldn't be found");
-        }
-
+       return materialMapper.getMaterialPricesForPeriod(symbol,dateBefore,today);
     }
 
 
-    public List<Material> getMaterialForYears(String name , int years) {
+    public List<Material> getMaterialMaximum(MaterialSymbol symbol) {
 
-        if ( name.equals("gold")) {
-
-            return goldService.getGoldForYears(years);
-        } else {
-
-            throw new MaterialNotFoundException("Material with this name couldn't be found");
-        }
-
+        return materialMapper.getMaterialPricesMaxPeriod(symbol);
     }
 
+    public List<Material> getMaterialForYears(MaterialSymbol symbol , long years) {
+
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime dateBefore = today.minusYears(years);
+
+        return materialMapper.getMaterialPricesForPeriod(symbol,dateBefore,today);
+    }
+
+    private LocalDateTime todayDate() {
+
+        LocalDateTime today = LocalDateTime.now();
+        today = today.withHour(0);
+        today = today.withMinute(0);
+        today = today.withSecond(0);
+        return today;
+    }
 
 }

@@ -1,10 +1,9 @@
 package com.example.CurrencyProject.controller;
 
 import com.example.CurrencyProject.exception.CurrencyNotFoundException;
-import com.example.CurrencyProject.model.AB.Currency;
-import com.example.CurrencyProject.model.C.CurrencyC;
+import com.example.CurrencyProject.model.currency.Currency;
 import com.example.CurrencyProject.mapper.CurrencyMapper;
-import com.example.CurrencyProject.model.Group;
+import com.example.CurrencyProject.model.currency.Group;
 import com.example.CurrencyProject.service.CurrencyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import reactor.core.publisher.Mono;
@@ -60,10 +58,6 @@ public class CurrencyControllerTest {
                 .code("USD").currency("dolar amerykański").midPrice(121.12)
                 .build();
 
-        CurrencyC currencyCExpected = CurrencyC.builder()
-                .effectiveDate(LocalDate.of(2002,12,1))
-                .code("USD").currency("dolar amerykański").buyPrice(122.12).sellPrice(121.12)
-                .build();
 
 
         // when

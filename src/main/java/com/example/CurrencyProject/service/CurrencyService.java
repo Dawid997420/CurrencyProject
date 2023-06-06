@@ -2,8 +2,8 @@ package com.example.CurrencyProject.service;
 
 import com.example.CurrencyProject.exception.CurrencyNotFoundException;
 import com.example.CurrencyProject.mapper.CurrencyMapper;
-import com.example.CurrencyProject.model.AB.Currency;
-import com.example.CurrencyProject.model.Group;
+import com.example.CurrencyProject.model.currency.Currency;
+import com.example.CurrencyProject.model.currency.Group;
 import com.example.CurrencyProject.utils.MathMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -42,7 +42,11 @@ public class CurrencyService {
 
         if ( numberDays > 365 ) {
 
-            throw new IllegalArgumentException("Maximum number of days is 365!");
+            int numberYears = numberDays / 365 ;
+
+            List<Currency> currencyForYears = getCurrencyForYears(group,code,numberYears);
+
+          return Mono.just(currencyForYears);
         }
 
         ZoneId polishZone = ZoneId.of("Europe/Warsaw");
@@ -80,7 +84,6 @@ public class CurrencyService {
                 if ( maximumCurrency.size() > 1) {
 
                     break;
-
                 }
             } catch (Exception e) {
 
@@ -127,6 +130,10 @@ public class CurrencyService {
     }
 
 
+//    public Mono<List<Currency>> getCurrenciesSorted() {
+//
+//    }
+
 
 
 
@@ -145,16 +152,78 @@ public class CurrencyService {
         });
     }
 
-    private List<Currency> getCurrencyMostActualDaysLimited(Group group, String code, int numberDays) {
+    public List<Currency> getAllCryptosByMidPriceGrow() {
 
-        List<Currency> currencyForDays = currencyMapper.getCurrencyMostActualDays(group,code,numberDays);
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparingDouble(Currency::getMidPrice));
 
-        if ( currencyForDays == null) {
-            throw new CurrencyNotFoundException("Currency Not found, maybe group or code is wrong");
-        }
-        return currencyForDays;
+        return currencies;
+    }
+
+    public List<Currency> getAllCryptosByMidPriceFall() {
+
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparingDouble(Currency::getMidPrice).reversed());
+
+        return currencies;
+    }
+
+    public List<Currency> getAllCryptosByPercentChangeGrow() {
+
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparingDouble(Currency::getPercentChange));
+
+        return currencies;
+    }
+
+    public List<Currency> getAllCryptosByPercentChangeFall() {
+
+        List<Currency> currencies = getAllCryptosByPercentChangeGrow();
+        Collections.reverse(currencies);
+        return currencies;
+    }
+
+
+    public List<Currency> getAllCryptosByChangeGrow() {
+
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparingDouble(Currency::getChange));
+
+        return currencies;
 
     }
+
+
+    public List<Currency> getAllCryptosByChangeFall() {
+
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparingDouble(Currency::getChange).reversed());
+
+        return currencies;
+
+    }
+
+
+
+    public List<Currency> getAllCryptosAlphabetically() {
+
+        List<Currency> currencies = getCurrencies().block();
+        currencies.sort(Comparator.comparing(Currency::getCurrency));
+
+        return currencies;
+    }
+
+    public List<Currency> getAllCryptosAlphabeticallyReversed() {
+
+        List<Currency> currencies = getAllCryptosAlphabetically();
+        Collections.reverse(currencies);
+
+        return currencies;
+    }
+
+
+
+
 
 
 

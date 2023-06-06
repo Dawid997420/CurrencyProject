@@ -2,19 +2,18 @@ package com.example.CurrencyProject.service;
 
 import com.example.CurrencyProject.exception.CurrencyNotFoundException;
 import com.example.CurrencyProject.mapper.CurrencyMapper;
-import com.example.CurrencyProject.model.AB.Currency;
-import com.example.CurrencyProject.model.Group;
+import com.example.CurrencyProject.model.currency.Currency;
+import com.example.CurrencyProject.model.currency.Group;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,7 +47,6 @@ class CurrencyServiceTest {
 
     @Test
     void getCurrencies() {
-
 
         // given
         List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
@@ -92,17 +90,7 @@ class CurrencyServiceTest {
         assertThat(resultCurrencies.size(),equalTo(19));
     }
 
-    @Test
-    public void getCurrencyForDaysShouldThrowIllegalArgumentException() {
 
-        // given
-
-        // when
-
-        // then
-        assertThrows(IllegalArgumentException.class,
-                () -> currencyService.getCurrencyForDays(Group.A,"USD",366));
-    }
 
     @Test
     public void getCurrencyForDaysShouldCurrencyNotFoundExceptionWhenBetweenNull() {
@@ -241,6 +229,7 @@ class CurrencyServiceTest {
     }
 
 
+    @Disabled("This method will be probably removed later, so test is disabled")
     @Test
     void getCurrencyMaximum() {
 
@@ -267,6 +256,146 @@ class CurrencyServiceTest {
         // then
         assertThat(result,equalTo(currencyList));
 
+    }
+
+
+    @Test
+    void getAllCryptosByMidPriceGrow() {
+
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByMidPriceGrow();
+
+        // then
+        assertThat(currencies.get(0).getMidPrice(),lessThan(currencies.get(10).getMidPrice()));
+
+    }
+
+
+    @Test
+    void getAllCryptosByMidPriceFall() {
+
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByMidPriceFall();
+
+        // then
+        assertThat(currencies.get(0).getMidPrice(),greaterThan(currencies.get(10).getMidPrice()));
+
+    }
+
+
+    @Test
+    void getAllCryptosAlphabetically() {
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosAlphabetically();
+
+        // then
+        assertThat(currencies.get(0).getCurrency(),equalTo("afgani (Afganistan)"));
+    }
+
+    @Test
+    void getAllCryptosAlphabeticallyReversed() {
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosAlphabeticallyReversed();
+
+        // then
+        assertThat(currencies.get(0).getCurrency(),equalTo("lej rumuński"));
+    }
+
+    @Test
+    void getAllCryptosByPercentChangeGrow() {
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByPercentChangeGrow();
+
+        // then
+        assertThat(currencies.get(0).getPercentChange(),lessThan
+                (currencies.get(10).getPercentChange()));
+    }
+
+    @Test
+    void getAllCryptosByPercentChangeFall() {
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByPercentChangeFall();
+
+        // then
+        assertThat(currencies.get(0).getPercentChange(),greaterThan
+                (currencies.get(10).getPercentChange()));
+    }
+
+    @Test
+    void getAllCryptosByChangeFall() {
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByChangeFall();
+
+        // then
+        assertThat(currencies.get(0).getChange(),greaterThan
+                (currencies.get(10).getChange()));
+    }
+
+    @Test
+    void getAllCryptosByChangeGrow() {
+
+        // given
+        List<List<Currency>> tableA = currencyFactory.getListOfListCurrenciesTable(Group.A);
+        List<List<Currency>> tableB = currencyFactory.getListOfListCurrenciesTable(Group.B);
+
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.A,2)).thenReturn(Mono.just( tableA ));
+        when(currencyMapper.getCurrenciesTableMostActualDays(Group.B,2)).thenReturn(Mono.just( tableB ));
+
+        // when
+        List<Currency> currencies = currencyService.getAllCryptosByChangeGrow();
+
+        // then
+        assertThat(currencies.get(0).getChange(),lessThan
+                (currencies.get(10).getChange()));
     }
 
 

@@ -3,21 +3,19 @@ package com.example.CurrencyProject.externalApi.NBP;
 
 import com.example.CurrencyProject.dto.AB.Currency_Dto;
 import com.example.CurrencyProject.dto.AB.TableDto;
-import com.example.CurrencyProject.model.Group;
+import com.example.CurrencyProject.model.currency.Group;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,23 +28,22 @@ public class CurrencyApi {
 
 
 
-    HttpClient client = HttpClient.create()
-            .responseTimeout(Duration.ofSeconds(10));
 
     public CurrencyApi(@Value("${api.nbp.url}") String apiUrl , WebClient.Builder webClientBuilder) {
 
 
 
         this.API_URL = apiUrl + "/exchangerates";
-        this.webClient = webClientBuilder.baseUrl(API_URL).defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .clientConnector(new ReactorClientHttpConnector(client)).build();
+        this.webClient = webClientBuilder.baseUrl(API_URL).defaultHeader(HttpHeaders.CONTENT_TYPE,
+                        MediaType.APPLICATION_JSON_VALUE)
+         .build();
 
     }
 
 
 
 
-
+    @Cacheable(cacheNames="TableByDate")
     public List<TableDto> getTableByDate(LocalDate date, Group group) {
 
         Mono<List<TableDto>> tableAMono = webClient.get().uri(uriBuilder -> uriBuilder
@@ -61,7 +58,7 @@ public class CurrencyApi {
 
 
 
-
+    @Cacheable(cacheNames="CurrencyByDate")
     public Currency_Dto getCurrencyByDate(LocalDate date, String currencyCode, Group group) {
 
         Mono<Currency_Dto> currencyAB_DtoMono = webClient.get()
@@ -76,7 +73,7 @@ public class CurrencyApi {
 
     }
 
-
+    @Cacheable(cacheNames="CurrencyBetween")
     public Mono<Currency_Dto> getCurrencyBetween(Group group,String currencyCode,
                                            LocalDate startDate, LocalDate endDate) {
 
@@ -87,15 +84,13 @@ public class CurrencyApi {
                         .path("/" + startDate)
                         .path("/" + endDate)
                         .queryParam("format","json")
-                        .build()).retrieve().bodyToMono(Currency_Dto.class);
-
-
+                        .build()).retrieve().bodyToMono(Currency_Dto.class).cache();
 
     }
 
 
 
-
+    @Cacheable(cacheNames="ActualCurrency")
     public Currency_Dto getActualCurrency(String currencyCode , Group group) {
 
         Mono<Currency_Dto> currencyValueMidMono = webClient.get()
@@ -111,6 +106,7 @@ public class CurrencyApi {
     }
 
 
+    @Cacheable(cacheNames="CurrenciesTableMostActualDays")
     public Mono<List<TableDto>> getCurrenciesTableMostActualDays(Group group, int days) {
 
         Mono<List<TableDto>> currenciesFromTable_Mono =  webClient.get()
@@ -124,9 +120,10 @@ public class CurrencyApi {
                 .bodyToMono(String.class)
                 .map(this::createListTableDto);
 
-        return currenciesFromTable_Mono;
+        return currenciesFromTable_Mono.cache();
     }
 
+    @Cacheable(cacheNames="CurrencyMostActualDays")
     public Currency_Dto getCurrencyMostActualDays( Group group, String code, int days) {
 
         Mono<Currency_Dto> currenciesFromTable_Mono =  webClient.get()
@@ -143,7 +140,7 @@ public class CurrencyApi {
         return currenciesFromTable_Mono.block();
     }
 
-
+    @Cacheable(cacheNames="ActualCurrenciesTable")
     public List<TableDto> getActualCurrenciesTable(Group group) {
 
         Mono<List<TableDto>> currenciesFromTableC_Mono =  webClient.get()

@@ -2,15 +2,12 @@ package com.example.CurrencyProject.mapper;
 
 import com.example.CurrencyProject.dto.GoldDto;
 import com.example.CurrencyProject.externalApi.NBP.GoldApi;
-import com.example.CurrencyProject.mapper.GoldMapper;
-import com.example.CurrencyProject.model.Material;
-import com.example.CurrencyProject.service.CurrencyFactory;
+import com.example.CurrencyProject.model.material.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import static net.bytebuddy.matcher.ElementMatchers.is;
@@ -63,7 +60,7 @@ class GoldMapperTest {
         when(goldApi.getActualGoldValue()).thenReturn(goldDtoList);
 
         Material goldValueExpected = Material.builder().name("gold").unit("gram").data
-                (date).price(price).build();
+                (date.atStartOfDay()).price(price).build();
 
         // when
 
