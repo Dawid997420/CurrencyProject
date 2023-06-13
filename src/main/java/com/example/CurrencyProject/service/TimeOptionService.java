@@ -53,16 +53,16 @@ public class TimeOptionService {
         List<TimeOption> timeForMaterial = new ArrayList<>();
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("1 dzien").value("1").build());
+                .assetType(AssetType.Crypto).name("1 dzien").value("1").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("1 mies").value("30").build());
+                .assetType(AssetType.Crypto).name("1 mies").value("30").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("1 rok").value("365").build());
+                .assetType(AssetType.Crypto).name("1 rok").value("365").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("max").value("max").build());
+                .assetType(AssetType.Crypto).name("max").value("max").build());
         return timeForMaterial;
     }
 
@@ -72,16 +72,16 @@ public class TimeOptionService {
         List<TimeOption> timeForMaterial = new ArrayList<>();
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("1 mies").value("30").build());
+                .assetType(AssetType.Currency).name("1 mies").value("30").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("6 mies").value("180").build());
+                .assetType(AssetType.Currency).name("6 mies").value("180").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("1 rok").value("365").build());
+                .assetType(AssetType.Currency).name("1 rok").value("365").build());
 
         timeForMaterial.add(TimeOption.builder()
-                .assetType(AssetType.Material).name("10 lat").value("3650").build());
+                .assetType(AssetType.Currency).name("10 lat").value("3650").build());
 
         return timeForMaterial;
     }

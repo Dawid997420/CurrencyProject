@@ -1,16 +1,19 @@
 package com.example.CurrencyProject.controller;
 
 import com.example.CurrencyProject.dto.crypto.PeriodCrypto;
+import com.example.CurrencyProject.model.Sort;
 import com.example.CurrencyProject.model.crypto.Crypto;
 import com.example.CurrencyProject.scraper.metal.enums.CurrencyCode;
 import com.example.CurrencyProject.service.CryptoService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
-@RequestMapping("crypto")
+@Tag(name = "Cryptos")
+@RequestMapping("cryptos")
 @RestController
 public class CryptoController {
 
@@ -20,149 +23,109 @@ public class CryptoController {
         this.cryptoService = cryptoService;
     }
 
-    @GetMapping("/price/grow/{currencyCode}")
-    public List<Crypto> getAllCryptoByPriceGrow(@PathVariable String currencyCode
+    @GetMapping("/price/{sort}")
+    public List<Crypto> getAllCryptoByPriceGrow(@RequestParam(defaultValue = "1") int page,
+                                                @RequestParam(defaultValue = "50") int size,
+                                                @PathVariable String sort) {
+
+        Sort sortOperation = Sort.valueOf(sort);
+
+        if ( sortOperation.equals(Sort.ASC)) {
+
+            try {
+                CurrencyCode code = CurrencyCode.PLN;
+                List<Crypto> allCryptos = cryptoService.getAllCryptosByPriceGrow(code);
+
+                return getCryptosByPage(allCryptos,page,size);
+            } catch (RuntimeException e) {
+
+                throw new RuntimeException("Not Allowed Currency Code");
+            }
+
+        } else {
+
+            try {
+                CurrencyCode code = CurrencyCode.PLN;
+                List<Crypto> allCryptos = cryptoService.getAllCryptosByPriceFall(code);
+                return getCryptosByPage(allCryptos,page,size);
+
+            } catch (RuntimeException e) {
+
+                throw new RuntimeException("Not Allowed Currency Code");
+            }
+        }
+
+    }
+
+
+
+
+    @GetMapping("/percentChange/{sort}")
+    public List<Crypto> getAllCryptoByPercentGrow(@PathVariable String sort
             , @RequestParam(defaultValue = "1") int page,@RequestParam(defaultValue = "50") int size) {
 
-        try {
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
-            List<Crypto> allCryptos = cryptoService.getAllCryptosByPriceGrow(code);
+        Sort sortOperation = Sort.valueOf(sort);
+        CurrencyCode code = CurrencyCode.PLN;
 
-            return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
+        if ( sortOperation.equals(Sort.ASC)) {
 
-            throw new RuntimeException("Not Allowed Currency Code");
-        }
-    }
+        List<Crypto> allCryptos = cryptoService.getAllCryptosByPercentGrow(code);
+        return getCryptosByPage(allCryptos,page,size);
 
+        } else {
 
-    @GetMapping("/price/fall/{currencyCode}")
-    public List<Crypto> getAllCryptoByPriceFall(@PathVariable String currencyCode,
-            @RequestParam(defaultValue = "1") int page,@RequestParam(defaultValue = "50") int size) {
-
-        try {
-
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
-
-            List<Crypto> allCryptos = cryptoService.getAllCryptosByPriceFall(code);
-
-
-            return getCryptosByPage(allCryptos,page,size);
-
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
+        List<Crypto> allCryptos = cryptoService.getAllCryptosByPercentFall(code);
+        return getCryptosByPage(allCryptos,page,size);
         }
 
     }
 
 
-    @GetMapping("/percent/grow/{currencyCode}")
-    public List<Crypto> getAllCryptoByPercentGrow(@PathVariable String currencyCode
-            , @RequestParam(defaultValue = "1") int page,@RequestParam(defaultValue = "50") int size) {
 
-        try {
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
-            List<Crypto> allCryptos = cryptoService.getAllCryptosByPercentGrow(code);
-
-            return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
-        }
-    }
-
-
-
-    @GetMapping("/percent/fall/{currencyCode}")
-    public List<Crypto> getAllCryptoByPercentFall(@PathVariable String currencyCode,
-                                                @RequestParam(defaultValue = "1") int page,@RequestParam(defaultValue = "50") int size) {
-
-        try {
-
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
-
-            List<Crypto> allCryptos = cryptoService.getAllCryptosByPercentFall(code);
-
-            return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
-        }
-
-    }
-
-
-    @GetMapping("/marketCap/fall/{currencyCode}")
-    public List<Crypto> getAllCryptoByMarketCapFall(@PathVariable String currencyCode,
+    @GetMapping("/marketCap/{sort}")
+    public List<Crypto> getAllCryptoByMarketCapFall(@PathVariable String sort,
                                                   @RequestParam(defaultValue = "1") int page,
                                                     @RequestParam(defaultValue = "50") int size) {
-        try {
+        Sort sortOperation = Sort.valueOf(sort);
+        CurrencyCode code = CurrencyCode.PLN;
 
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
+        if ( sortOperation.equals(Sort.DESC)) {
 
             List<Crypto> allCryptos = cryptoService.getAllCryptosByMarketCapFall(code);
-
             return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
-        }
-
-    }
-
-
-
-    @GetMapping("/marketCap/grow/{currencyCode}")
-    public List<Crypto> getAllCryptoByMarketCapGrow(@PathVariable String currencyCode,
-                                                    @RequestParam(defaultValue = "1") int page,
-                                                    @RequestParam(defaultValue = "50") int size) {
-        try {
-
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
+        } else {
 
             List<Crypto> allCryptos = cryptoService.getAllCryptosByMarketCapGrow(code);
-
             return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
         }
 
     }
 
 
 
-    @GetMapping("/a/{currencyCode}")
-    public List<Crypto> getAllCryptoAlphabetically(@PathVariable String currencyCode,
+
+
+
+    @GetMapping("/abc/{sort}")
+    public List<Crypto> getAllCryptoAlphabetically(@PathVariable String sort,
                                                     @RequestParam(defaultValue = "1") int page,
                                                     @RequestParam(defaultValue = "50") int size) {
-        try {
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
+
+        Sort sortOperation = Sort.valueOf(sort);
+        CurrencyCode code = CurrencyCode.PLN;
+
+        if ( sortOperation.equals(Sort.ASC)) {
+
 
             List<Crypto> allCryptos = cryptoService.getAllCryptosAlphabet(code);
-
             return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
-        }
-    }
-
-    @GetMapping("/z/{currencyCode}")
-    public List<Crypto> getAllCryptoReverseAlphabetically(@PathVariable String currencyCode,
-                                                   @RequestParam(defaultValue = "1") int page,
-                                                   @RequestParam(defaultValue = "50") int size) {
-        try {
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
+        } else {
 
             List<Crypto> allCryptos = cryptoService.getAllCryptosReverseAlphabet(code);
 
             return getCryptosByPage(allCryptos,page,size);
-        } catch (RuntimeException e) {
-
-            throw new RuntimeException("Not Allowed Currency Code");
         }
+
     }
 
 
@@ -182,15 +145,15 @@ public class CryptoController {
 
 
 
-    @GetMapping("/{cryptoName}/{currencyCode}/{days}")
-    public List<Crypto> getCryptoPriceForDays(@PathVariable String cryptoName,
-                                              @PathVariable String currencyCode, @PathVariable String days) throws ParseException {
+    @GetMapping("days/{cryptoCode}/{days}")
+    public List<Crypto> getCryptoPriceForDays(@PathVariable String cryptoCode,
+                                             @PathVariable String days) throws ParseException {
 
+        CurrencyCode code = CurrencyCode.PLN;
         try {
-            CurrencyCode code = CurrencyCode.getEnum(currencyCode);
-            PeriodCrypto period = PeriodCrypto.getPeriod(days);
 
-            return cryptoService.getCryptoPriceForDays(cryptoName,code,period);
+            PeriodCrypto period = PeriodCrypto.getPeriod(days);
+            return cryptoService.getCryptoPriceForDays(cryptoCode,code,period);
         } catch (RuntimeException e) {
 
             throw new RuntimeException("You provide wrong days number, currency code or " +

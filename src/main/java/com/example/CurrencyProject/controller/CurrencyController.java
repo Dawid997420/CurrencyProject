@@ -1,16 +1,20 @@
 package com.example.CurrencyProject.controller;
 
 import com.example.CurrencyProject.exception.CurrencyNotFoundException;
+import com.example.CurrencyProject.model.Sort;
 import com.example.CurrencyProject.model.currency.Currency;
 import com.example.CurrencyProject.model.currency.Group;
 import com.example.CurrencyProject.service.CurrencyService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
 
-@RequestMapping("currency")
+@Tag(name = "Currencies")
+@RequestMapping("currencies")
 @RestController
 public class CurrencyController {
 
@@ -24,70 +28,87 @@ public class CurrencyController {
         this.currencyService = currencyService;
     }
 
-    @GetMapping("/change/fall")
+    @GetMapping("/change/{sort}")
     public ResponseEntity<List<Currency>> getCurrenciesByChangeFall(@RequestParam(defaultValue = "1") int page,
-                                                                     @RequestParam(defaultValue = "50") int size) {
+                                                                    @RequestParam(defaultValue = "50") int size,
+                                                                    @PathVariable String sort ) {
+        Sort sortOption = Sort.valueOf(sort);
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByChangeFall();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+        if (sortOption.equals(Sort.DESC)) {
 
-        return ResponseEntity.ok(currencyPage);
+            List<Currency> allCurrencies = currencyService.getAllCryptosByChangeFall();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        } else  {
+            List<Currency> allCurrencies = currencyService.getAllCryptosByChangeGrow();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        }
+
     }
 
-    @GetMapping("/change/grow")
-    public ResponseEntity<List<Currency>> getCurrenciesByChangeGrow(@RequestParam(defaultValue = "1") int page,
-                                                                    @RequestParam(defaultValue = "50") int size) {
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByChangeGrow();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
-
-        return ResponseEntity.ok(currencyPage);
-    }
-
-
-
-    @GetMapping("/percent/grow")
+    @GetMapping("/percentChange/{sort}")
     public ResponseEntity<List<Currency>> getCurrenciesByPercentGrow(@RequestParam(defaultValue = "1") int page,
-                                                                   @RequestParam(defaultValue = "50") int size) {
+                                                                   @RequestParam(defaultValue = "50") int size,
+                                                                     @PathVariable String sort ) {
+        Sort sortOperation = Sort.valueOf(sort);
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByPercentChangeGrow();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+        if ( sortOperation.equals(Sort.ASC)) {
 
-        return ResponseEntity.ok(currencyPage);
+            List<Currency> allCurrencies = currencyService.getAllCryptosByPercentChangeGrow();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        } else {
+            List<Currency> allCurrencies = currencyService.getAllCryptosByPercentChangeFall();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        }
+
     }
 
-    @GetMapping("/percent/fall")
-    public ResponseEntity<List<Currency>> getCurrenciesByPercentFall(@RequestParam(defaultValue = "1") int page,
-                                                                     @RequestParam(defaultValue = "50") int size) {
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByPercentChangeFall();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
-
-        return ResponseEntity.ok(currencyPage);
-    }
-
-
-
-    @GetMapping("/price/grow")
+    @GetMapping("/price/{sort}")
     public ResponseEntity<List<Currency>> getCurrenciesByPriceGrow(@RequestParam(defaultValue = "1") int page,
-                                                        @RequestParam(defaultValue = "50") int size) {
+                                                        @RequestParam(defaultValue = "50") int size,
+                                                                   @PathVariable String sort ) {
+        Sort sortOperation = Sort.valueOf(sort);
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByMidPriceGrow();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+        if ( sortOperation.equals(Sort.ASC)) {
 
-       return ResponseEntity.ok(currencyPage);
+            List<Currency> allCurrencies = currencyService.getAllCryptosByMidPriceGrow();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        } else {
+            List<Currency> allCurrencies = currencyService.getAllCryptosByMidPriceFall();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        }
+
     }
 
 
-    @GetMapping("/price/fall")
-    public ResponseEntity<List<Currency>> getCurrenciesByPriceFall(@RequestParam(defaultValue = "1") int page,
-                                                                   @RequestParam(defaultValue = "50") int size) {
 
-        List<Currency> allCurrencies = currencyService.getAllCryptosByMidPriceFall();
-        List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
 
-        return ResponseEntity.ok(currencyPage);
+    @GetMapping("/abc/{sort}")
+    public ResponseEntity<List<Currency>> getCurrenciesAlphabetically(@RequestParam(defaultValue = "1") int page,
+                                                                   @RequestParam(defaultValue = "50") int size,
+                                                                      @PathVariable String sort) {
+        Sort sortOperation = Sort.valueOf(sort);
+
+        if ( sortOperation.equals(Sort.ASC)) {
+
+            List<Currency> allCurrencies = currencyService.getAllCryptosAlphabetically();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        } else {
+            List<Currency> allCurrencies = currencyService.getAllCryptosAlphabeticallyReversed();
+            List<Currency> currencyPage = getCurrenciesByPage(allCurrencies,page,size);
+            return ResponseEntity.ok(currencyPage);
+        }
+
     }
+
 
 
     @GetMapping
@@ -132,13 +153,13 @@ public class CurrencyController {
     }
 
 
-    @GetMapping("days/{group}/{code}/{numberDays}")
+    @GetMapping("days/{group}/{code}/{days}")
     public ResponseEntity<?> getCurrencyForDays(@PathVariable String group,@PathVariable String code,
-                                                             @PathVariable Integer numberDays) {
+                                                             @PathVariable Integer days) {
         try {
 
             List<Currency> currencyList = currencyService.
-                    getCurrencyForDays(Group.valueOf(group), code, numberDays).block();
+                    getCurrencyForDays(Group.valueOf(group), code, days).block();
 
             return ResponseEntity.ok(currencyList);
         } catch (IllegalArgumentException exception) {
@@ -150,14 +171,14 @@ public class CurrencyController {
         }
     }
 
-    @GetMapping("/years/{group}/{code}/{numberYears}")
+    @GetMapping("/years/{group}/{code}/{years}")
     public ResponseEntity<?> getCurrencyForYears(@PathVariable String group, @PathVariable String code,
-                                                                    @PathVariable Integer numberYears) {
+                                                                    @PathVariable Integer years) {
 
         try {
 
             List<Currency> currencyForYears = currencyService.getCurrencyForYears(Group.valueOf(group)
-                    ,code,numberYears);
+                    ,code,years);
 
             return ResponseEntity.ok(currencyForYears);
 
@@ -172,25 +193,7 @@ public class CurrencyController {
     }
 
 
-    @GetMapping("/max/years/{group}/{code}")
-    public ResponseEntity<?> getCurrencyMaximum(@PathVariable String group, @PathVariable String code) {
-
-        try {
-
-            List<Currency> currencyForYears = currencyService.getCurrencyMaximum(Group.valueOf(group)
-                    ,code);
-
-            return ResponseEntity.ok(currencyForYears);
-        } catch (IllegalArgumentException exception) {
-
-            return ResponseEntity.badRequest().body(exception.getMessage());
-        } catch ( Exception e) {
-
-            return ResponseEntity.internalServerError().body("Internal server error ");
-        }
-
-    }
-
+  
 
 
 }

@@ -326,7 +326,7 @@ class CurrencyServiceTest {
         List<Currency> currencies = currencyService.getAllCryptosAlphabeticallyReversed();
 
         // then
-        assertThat(currencies.get(0).getCurrency(),equalTo("lej rumuński"));
+        assertThat(currencies.get(0).getCurrency(),equalTo("forint (Węgry)"));
     }
 
     @Test

@@ -208,7 +208,7 @@ public class CurrencyService {
     public List<Currency> getAllCryptosAlphabetically() {
 
         List<Currency> currencies = getCurrencies().block();
-        currencies.sort(Comparator.comparing(Currency::getCurrency));
+        currencies.sort(Comparator.comparing(Currency::getCountry));
 
         return currencies;
     }

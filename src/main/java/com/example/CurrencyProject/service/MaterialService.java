@@ -14,7 +14,10 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MaterialService {
@@ -34,7 +37,79 @@ public class MaterialService {
 
     public List<Material> getAllMaterials() throws Exception {
 
-        return materialScrapper.getAllMaterials();
+        List<Material> materials = materialScrapper.getAllMaterials();
+        materials.sort(Comparator.comparing(material -> material.getUnit().toLowerCase()));
+
+        Collections.reverse(materials);
+        return materials;
+    }
+
+    public List<Material> getMaterialsAlphabetically() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparing(material -> material.getName().toLowerCase()));
+        return materials;
+    }
+
+    public List<Material> getMaterialsAlphabeticallyReversed() throws Exception {
+
+        List<Material> materials = getMaterialsAlphabetically();
+
+        Collections.reverse(materials);
+        return materials;
+    }
+
+
+    public List<Material> getMaterialsByPercentFall() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getPercentChange).reversed());
+        return materials;
+    }
+
+    public List<Material> getMaterialsByPercentGrow() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getPercentChange));
+        return materials;
+    }
+
+    public List<Material> getMaterialsByChangeGrow() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getChange));
+        return materials;
+    }
+
+    public List<Material> getMaterialsByChangeFall() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getChange).reversed());
+        return materials;
+    }
+
+
+
+
+    public List<Material> getMaterialsByPriceFall() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getPrice).reversed());
+        return materials;
+    }
+
+    public List<Material> getMaterialsByPriceGrow() throws Exception {
+
+        List<Material> materials = getAllMaterials();
+
+        materials.sort(Comparator.comparingDouble(Material::getPrice));
+        return materials;
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.CurrencyProject.controller;
 
 import com.example.CurrencyProject.dto.material.MaterialSymbol;
+import com.example.CurrencyProject.model.Sort;
 import com.example.CurrencyProject.model.material.Material;
 import com.example.CurrencyProject.scraper.material.MaterialScrapper;
 import com.example.CurrencyProject.scraper.metal.enums.Metal;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("material")
+@RequestMapping("materials")
 public class MaterialController {
 
 
@@ -38,6 +39,58 @@ public class MaterialController {
     public ResponseEntity<List<Material>> getAllMaterials() throws Exception {
 
        return  ResponseEntity.ok(materialService.getAllMaterials());
+    }
+
+
+    @GetMapping("/abc/{sort}")
+    public ResponseEntity<List<Material>> getAllMaterialsAlphabetically(@PathVariable String sort) throws Exception {
+
+        Sort sortOperation = Sort.valueOf(sort);
+        if ( sortOperation.equals(Sort.ASC)) {
+            return  ResponseEntity.ok(materialService.getMaterialsAlphabetically());
+        } else {
+            return  ResponseEntity.ok(materialService.getMaterialsAlphabeticallyReversed());
+        }
+    }
+
+    @GetMapping("/price/{sort}")
+    public ResponseEntity<List<Material>> getAllMaterialsByPriceFall(@PathVariable String sort) throws Exception {
+
+        Sort sortOperation = Sort.valueOf(sort);
+        if (sortOperation.equals(Sort.DESC)) {
+            return  ResponseEntity.ok(materialService.getMaterialsByPriceFall());
+        } else {
+            return  ResponseEntity.ok(materialService.getMaterialsByPriceGrow());
+        }
+
+    }
+
+
+
+    @GetMapping("/change/{sort}")
+    public ResponseEntity<List<Material>> getAllMaterialsByChangeFall(@PathVariable String sort) throws Exception {
+
+        Sort sortOperation = Sort.valueOf(sort);
+
+        if ( sortOperation.equals(Sort.DESC)) {
+
+            return  ResponseEntity.ok(materialService.getMaterialsByChangeFall());
+        } else  {
+            return  ResponseEntity.ok(materialService.getMaterialsByChangeGrow());
+        }
+    }
+
+
+    @GetMapping("/percentChange/{sort}")
+    public ResponseEntity<List<Material>> getAllMaterialsByPercentFall(@PathVariable String sort) throws Exception {
+
+        Sort sortOperation = Sort.valueOf(sort);
+
+        if ( sortOperation.equals(Sort.DESC)) {
+            return  ResponseEntity.ok(materialService.getMaterialsByPercentFall());
+        } else {
+            return  ResponseEntity.ok(materialService.getMaterialsByPercentGrow());
+        }
     }
 
     @GetMapping("days/{material}/{days}")
@@ -71,10 +124,7 @@ public class MaterialController {
     }
 
 
-    @GetMapping("/test")
-    public ResponseEntity<String> getTest() throws Exception {
-        return  ResponseEntity.ok(materialScrapper.getSite().outerHtml());
-    }
+
 
 
 
